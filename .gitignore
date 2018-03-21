@@ -1,3 +1,4 @@
-BUILD/
+BUILD/*
+!BUILD/*.hex
 SX1280PingPong.si4project/
 DebugConfig/
