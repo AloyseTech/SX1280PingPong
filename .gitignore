@@ -1,2 +1,3 @@
-BUILD/*
-SX1280PingPong.si4project/*
+BUILD/
+SX1280PingPong.si4project/
+DebugConfig/
