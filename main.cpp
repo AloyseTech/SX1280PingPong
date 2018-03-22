@@ -297,8 +297,8 @@ void RadioInit(void)
     printf( "\nPing Pong running in LORA mode\n\r");
     modulationParams.PacketType                  = PACKET_TYPE_LORA;
     modulationParams.Params.LoRa.SpreadingFactor = LORA_SF5;
-    modulationParams.Params.LoRa.Bandwidth       = LORA_BW_1600;
-    modulationParams.Params.LoRa.CodingRate      = LORA_CR_4_5;
+    modulationParams.Params.LoRa.Bandwidth       = LORA_BW_0200;
+     modulationParams.Params.LoRa.CodingRate      = LORA_CR_LI_4_5;
 
     PacketParams.PacketType                 = PACKET_TYPE_LORA;
     PacketParams.Params.LoRa.PreambleLength = 0x0C;
@@ -349,12 +349,15 @@ void RadioInit(void)
 	//Radio.SetSyncWord( 1, ( uint8_t[] ){ 0xD6, 0xBE, 0x89, 0x8E, 0xDD } );
 }
 
+DigitalOut testPin(TEST_PA13);
 uint32_t txPktCnt=0;
 int main( )
 {
     bool isMaster = 0;
 	int	 TxIntervalMs = 3000;//only for master
 	DigitalIn mybutton(USER_BUTTON);
+	
+	
 
     uint8_t txLen = BUFFER_SIZE; ///tx data length for test
     uint16_t tmpCrc,RxCrc;
@@ -396,6 +399,7 @@ int main( )
     	Radio.SetRx( ( TickTime_t ) { RX_TIMEOUT_TICK_SIZE, RX_TIMEOUT_VALUE } );
 	}
     AppState = APP_LOWPOWER;
+    testPin = 0;
 
     while( 1 )
     {
@@ -528,7 +532,7 @@ int main( )
                     while(DelayTimer.read_ms() - begin <= 3);
                         
                     Radio.SetDioIrqParams( TxIrqMask, TxIrqMask, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
-                    Radio.SendPayload( Buffer, txLen, ( TickTime_t ){ RX_TIMEOUT_TICK_SIZE, TX_TIMEOUT_VALUE } );   
+                    Radio.SendPayload( Buffer, txLen, ( TickTime_t ){ RX_TIMEOUT_TICK_SIZE, TX_TIMEOUT_VALUE } ); 
                     printf("%d\n\r",txPktCnt);
 			    }
 			    #endif
@@ -573,13 +577,14 @@ int main( )
 void OnTxDone( void )
 {
     AppState = APP_TX;
+    testPin = !testPin;
     
     begin = DelayTimer.read_ms();
 	if(txPktCnt == 1){
         while(DelayTimer.read_ms() - begin <= 500);
 	}
     else{
-        while(DelayTimer.read_ms() - begin <= 3);
+        while(DelayTimer.read_ms() - begin <= 10);
     }
 
     uint8_t txLen = BUFFER_SIZE;
@@ -598,6 +603,7 @@ void OnTxDone( void )
 			
     Radio.SetDioIrqParams( TxIrqMask, TxIrqMask, IRQ_RADIO_NONE, IRQ_RADIO_NONE );
     Radio.SendPayload( Buffer, txLen, ( TickTime_t ){ RX_TIMEOUT_TICK_SIZE, TX_TIMEOUT_VALUE } );	
+    testPin = !testPin;
     //printf("%d\n\r",txPktCnt);
 }
 

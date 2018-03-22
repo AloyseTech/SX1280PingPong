@@ -141,6 +141,8 @@ typedef enum {
     SPI_CS      = PB_6,
     PWM_OUT     = PB_3,
 
+    TEST_PA13 = PA_13,
+
     // Not connected
     NC = (int)0xFFFFFFFF
 } PinName;
